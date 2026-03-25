@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard Steuerung</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #0d1b2a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: #6b7b8d;
+            margin-bottom: 20px;
+        }
+
+        .preview-score {
+            text-align: center;
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #1b2838;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 16px;
+            margin-bottom: 14px;
+            color: #8899aa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #6b7b8d;
+            margin-bottom: 4px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        label:first-of-type {
+            margin-top: 0;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="color"],
+        input[type="url"],
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #2a3a4a;
+            border-radius: 6px;
+            background: #0d1b2a;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="color"] {
+            height: 38px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a9eff;
+        }
+
+        /* Timer display */
+        .timer-display {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: #e74c3c;
+            margin: 10px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Buttons */
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.15s;
+        }
+
+        button:hover { opacity: 0.85; }
+        button:active { opacity: 0.7; }
+
+        .btn-start {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        .btn-stop {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-reset {
+            background: #2a3a4a;
+            color: #fff;
+        }
+
+        .btn-time {
+            background: #34495e;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        .btn-dark {
+            background: #2a3a4a;
+            color: #fff;
+        }
+
+        .btn-warn {
+            background: #f39c12;
+            color: #fff;
+        }
+
+        .timer-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        /* Score section */
+        .score-section {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .score-team {
+            text-align: center;
+        }
+
+        .score-team label {
+            text-align: center;
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 10px 0;
+        }
+
+        .score-num {
+            font-size: 48px;
+            font-weight: 900;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .score-colon {
+            font-size: 36px;
+            font-weight: 700;
+            color: #6b7b8d;
+        }
+
+        .goal-btn-plus {
+            width: 50px;
+            height: 50px;
+            font-size: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .goal-btn-minus {
+            width: 40px;
+            height: 40px;
+            font-size: 22px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .scorer-input-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .scorer-input-row input {
+            flex: 1;
+        }
+
+        .scorer-input-row input:last-child {
+            max-width: 60px;
+        }
+
+        .scorer-list {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #8899aa;
+        }
+
+        .scorer-list .scorer-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            border-bottom: 1px solid #1a2535;
+        }
+
+        .scorer-entry button {
+            padding: 2px 8px;
+            font-size: 11px;
+        }
+
+        /* Two-col inside card */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: end;
+        }
+
+        .row > * { flex: 1; }
+
+        /* Overlay buttons */
+        .overlay-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Action bar */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .display-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .display-link a {
+            color: #4a9eff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .display-link a:hover {
+            text-decoration: underline;
+        }
+
+        .file-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .file-row input[type="text"] {
+            flex: 1;
+        }
+
+        .file-btn {
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .file-btn input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            font-size: 0;
+        }
+
+        .logo-preview {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            object-fit: contain;
+            background: #0d1b2a;
+            border: 1px solid #2a3a4a;
+            flex-shrink: 0;
+            display: none;
+        }
+
+        .logo-preview.visible {
+            display: block;
+        }
+
+        .roster-table {
+            width: 100%;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .roster-table .roster-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            border-bottom: 1px solid #1a2535;
+        }
+
+        .roster-row .roster-num {
+            width: 35px;
+            text-align: center;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        .roster-row .roster-name {
+            flex: 1;
+        }
+
+        .roster-row button {
+            padding: 2px 8px;
+            font-size: 11px;
+        }
+
+        .roster-add-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .roster-add-row input {
+            flex: 1;
+        }
+
+        .roster-add-row input:first-child {
+            max-width: 55px;
+        }
+
+        .roster-row .roster-photo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid #2a3a4a;
+        }
+
+        .roster-row .no-photo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2a3a4a;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6b7b8d;
+        }
+
+        .photo-indicator {
+            color: #27ae60;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .player-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #2a3a4a;
+            border-radius: 6px;
+            background: #0d1b2a;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .player-select:focus {
+            outline: none;
+            border-color: #4a9eff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scoreboard Steuerung</h1>
+    <p class="subtitle">display.html auf dem Monitor/Beamer öffnen &mdash; control.html auf dem Laptop.</p>
+    <div class="preview-score" id="preview-score">0 : 0</div>
+
+    <div class="grid">
+
+        <!-- TIMER -->
+        <div class="card">
+            <h2>Spieluhr</h2>
+            <label>Spielzeit (Minuten)</label>
+            <input type="number" id="timer-minutes" value="10" min="1" max="90">
+            <div class="timer-display" id="timer-display">10:00</div>
+            <div class="timer-buttons">
+                <button class="btn-start" id="btn-start" onclick="startTimer()">Start</button>
+                <button class="btn-stop" id="btn-stop" onclick="stopTimer()" style="display:none;">Stop</button>
+                <button class="btn-reset" onclick="resetTimer()">Reset</button>
+            </div>
+            <div class="timer-buttons">
+                <button class="btn-time" onclick="adjustTimer(-10)">-10 Sek.</button>
+                <button class="btn-time" onclick="adjustTimer(10)">+10 Sek.</button>
+            </div>
+        </div>
+
+        <!-- TORE -->
+        <div class="card">
+            <h2>Tore</h2>
+            <div class="score-section">
+                <div class="score-team">
+                    <label>Heim</label>
+                    <select class="player-select" id="scorer-select-home">
+                        <option value="">-- Spieler wählen --</option>
+                    </select>
+                    <div style="margin-top:8px;">
+                        <button class="goal-btn-plus btn-success" onclick="addGoal('home')">+</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="score-display">
+                        <span class="score-num" id="ctrl-score-home">0</span>
+                        <span class="score-colon">:</span>
+                        <span class="score-num" id="ctrl-score-away">0</span>
+                    </div>
+                </div>
+
+                <div class="score-team">
+                    <label>Gast</label>
+                    <select class="player-select" id="scorer-select-away">
+                        <option value="">-- Spieler wählen --</option>
+                    </select>
+                    <div style="margin-top:8px;">
+                        <button class="goal-btn-plus btn-danger" onclick="addGoal('away')">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-col" style="margin-top:10px;">
+                <div>
+                    <button class="goal-btn-minus btn-dark" onclick="removeGoal('home')">-</button>
+                    <div class="scorer-list" id="scorers-list-home"></div>
+                </div>
+                <div>
+                    <button class="goal-btn-minus btn-dark" onclick="removeGoal('away')">-</button>
+                    <div class="scorer-list" id="scorers-list-away"></div>
+                </div>
+            </div>
+
+            <div class="overlay-buttons">
+                <button class="btn-primary" onclick="toggleOverlay('goal')">Tor-Overlay ausblenden</button>
+            </div>
+        </div>
+
+        <!-- TURNIER & TEAMS -->
+        <div class="card">
+            <h2>Turnier & Teams</h2>
+            <label>Turniername</label>
+            <input type="text" id="tournament-name" value="Turnier 2026" oninput="syncState()">
+
+            <div class="two-col">
+                <div>
+                    <label>Heim Team</label>
+                    <input type="text" id="home-team" value="Heim" oninput="syncState()">
+                </div>
+                <div>
+                    <label>Gast Team</label>
+                    <input type="text" id="away-team" value="Gast" oninput="syncState()">
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div>
+                    <label>Heim Logo</label>
+                    <div class="file-row">
+                        <input type="text" id="home-logo" placeholder="URL oder Datei wählen" oninput="syncState()">
+                        <button class="btn-dark file-btn">Datei<input type="file" accept="image/*" onchange="handleFileSelect(this, 'home-logo')"></button>
+                        <img class="logo-preview" id="home-logo-preview">
+                    </div>
+                </div>
+                <div>
+                    <label>Gast Logo</label>
+                    <div class="file-row">
+                        <input type="text" id="away-logo" placeholder="URL oder Datei wählen" oninput="syncState()">
+                        <button class="btn-dark file-btn">Datei<input type="file" accept="image/*" onchange="handleFileSelect(this, 'away-logo')"></button>
+                        <img class="logo-preview" id="away-logo-preview">
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button class="btn-primary" onclick="syncState()">Übernehmen</button>
+                <button class="btn-dark" onclick="swapTeams()">Links/Rechts tauschen</button>
+            </div>
+        </div>
+
+        <!-- KADER -->
+        <div class="card full-width">
+            <h2>Kader / Spieler</h2>
+            <div class="two-col">
+                <div>
+                    <label id="roster-label-home">Heim</label>
+                    <div class="roster-add-row">
+                        <input type="text" id="new-player-num-home" placeholder="#" maxlength="3">
+                        <input type="text" id="new-player-name-home" placeholder="Spieler Name">
+                        <button class="btn-dark file-btn" style="flex-shrink:0" title="Foto">&#128247;<input type="file" accept="image/*" onchange="handlePlayerPhoto(this, 'home')"></button>
+                        <button class="btn-success" onclick="addPlayer('home')">+</button>
+                    </div>
+                    <input type="hidden" id="new-player-photo-home">
+                    <div class="roster-table" id="roster-home"></div>
+                </div>
+                <div>
+                    <label id="roster-label-away">Gast</label>
+                    <div class="roster-add-row">
+                        <input type="text" id="new-player-num-away" placeholder="#" maxlength="3">
+                        <input type="text" id="new-player-name-away" placeholder="Spieler Name">
+                        <button class="btn-dark file-btn" style="flex-shrink:0" title="Foto">&#128247;<input type="file" accept="image/*" onchange="handlePlayerPhoto(this, 'away')"></button>
+                        <button class="btn-success" onclick="addPlayer('away')">+</button>
+                    </div>
+                    <input type="hidden" id="new-player-photo-away">
+                    <div class="roster-table" id="roster-away"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESIGN -->
+        <div class="card">
+            <h2>Design</h2>
+            <div class="two-col">
+                <div>
+                    <label>Hintergrundfarbe</label>
+                    <input type="color" id="bg-color" value="#000000" oninput="syncState()">
+                </div>
+                <div>
+                    <label>Titel-Farbe</label>
+                    <input type="color" id="title-color" value="#e74c3c" oninput="syncState()">
+                </div>
+            </div>
+            <div class="two-col">
+                <div>
+                    <label>Score-Farbe</label>
+                    <input type="color" id="score-color" value="#ffffff" oninput="syncState()">
+                </div>
+                <div>
+                    <label>Timer-Farbe</label>
+                    <input type="color" id="timer-color" value="#e74c3c" oninput="syncState()">
+                </div>
+            </div>
+
+            <label>Hintergrundbild</label>
+            <div class="file-row">
+                <input type="text" id="bg-image" placeholder="URL oder Datei wählen" oninput="syncState()">
+                <button class="btn-dark file-btn">Datei<input type="file" accept="image/*" onchange="handleFileSelect(this, 'bg-image')"></button>
+                <button class="btn-danger" onclick="resetBgImage()" title="Hintergrundbild entfernen">X</button>
+            </div>
+
+            <div class="action-bar">
+                <button class="btn-primary" onclick="syncState()">Design übernehmen</button>
+            </div>
+        </div>
+
+        <!-- SPONSOREN -->
+        <div class="card full-width">
+            <h2>Sponsoren Slideshow</h2>
+            <div class="two-col">
+                <div>
+                    <label>Sponsor hinzufügen (Bild oder Video)</label>
+                    <div class="roster-add-row">
+                        <input type="text" id="new-sponsor-name" placeholder="Name">
+                        <input type="text" id="new-sponsor-url" placeholder="URL oder Datei wählen" style="flex:2">
+                        <button class="btn-dark file-btn" style="flex-shrink:0">Datei<input type="file" accept="image/*,video/*" onchange="handleSponsorFile(this)"></button>
+                        <button class="btn-success" onclick="addSponsor()">+</button>
+                    </div>
+                    <div class="roster-table" id="sponsor-list"></div>
+                </div>
+                <div>
+                    <label>Wechsel-Intervall (Sekunden)</label>
+                    <input type="number" id="sponsor-interval" value="5" min="2" max="60">
+                    <label>Größe</label>
+                    <select id="sponsor-size">
+                        <option value="small">Klein</option>
+                        <option value="medium" selected>Mittel</option>
+                        <option value="large">Groß</option>
+                        <option value="fullscreen">Vollbild</option>
+                    </select>
+                    <label>Tor-Overlay Dauer (Sekunden)</label>
+                    <input type="number" id="goal-duration" value="5" min="1" max="30">
+                </div>
+            </div>
+            <div class="overlay-buttons">
+                <button class="btn-warn" onclick="startSponsors()">Slideshow starten</button>
+                <button class="btn-dark" onclick="stopSponsors()">Slideshow stoppen</button>
+                <button class="btn-warn" onclick="showHalftime(true)">Halbzeit anzeigen</button>
+                <button class="btn-dark" onclick="showHalftime(false)">Halbzeit ausblenden</button>
+            </div>
+        </div>
+
+        <!-- CONFIG IMPORT/EXPORT -->
+        <div class="card full-width">
+            <h2>Konfiguration</h2>
+            <div class="two-col">
+                <div>
+                    <label>Konfiguration importieren (JSON)</label>
+                    <div class="file-row">
+                        <input type="text" id="config-file-name" placeholder="Keine Datei gewählt" readonly style="opacity:0.6">
+                        <button class="btn-primary file-btn">JSON laden<input type="file" accept=".json,application/json" onchange="importConfig(this)"></button>
+                    </div>
+                </div>
+                <div>
+                    <label>Konfiguration exportieren</label>
+                    <div class="file-row">
+                        <input type="text" id="export-filename" placeholder="scoreboard-config" value="scoreboard-config">
+                        <button class="btn-success" onclick="exportConfig()">JSON speichern</button>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size:11px; color:#6b7b8d; margin-top:10px;">
+                Die JSON-Datei enthält: Turnier, Teams, Logos, Spieler-Kader, Design, Sponsor und Timer-Einstellungen.
+                Bilder die per Datei geladen wurden, werden als Data-URL eingebettet.
+            </p>
+        </div>
+
+        <!-- NEUES SPIEL -->
+        <div class="card full-width">
+            <h2>Spielsteuerung</h2>
+            <div class="overlay-buttons">
+                <button class="btn-danger" onclick="newMatch()">Neues Spiel (Score & Torschützen zurücksetzen)</button>
+                <button class="btn-dark" onclick="openDisplay()">Anzeige öffnen &#8599;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="display-link">
+        <a href="display.html" target="_blank">display.html in neuem Tab öffnen &rarr;</a>
+    </div>
+
+    <script>
+        const channel = new BroadcastChannel('scoreboard');
+
+        let homeScore = 0;
+        let awayScore = 0;
+        let homeScorers = [];
+        let awayScorers = [];
+        let homePlayers = [];
+        let awayPlayers = [];
+        let sponsors = [];
+
+        // Timer state
+        let timerSeconds = 600; // 10 min default
+        let timerRunning = false;
+        let timerInterval = null;
+        let initialTimerSeconds = 600;
+        let timerStartedOnce = false;
+
+        function formatTime(totalSeconds) {
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timer-display').textContent = formatTime(timerSeconds);
+        }
+
+        function startTimer() {
+            if (timerRunning) return;
+            if (!timerStartedOnce) {
+                initialTimerSeconds = timerSeconds;
+                timerStartedOnce = true;
+            }
+            timerRunning = true;
+            document.getElementById('btn-start').style.display = 'none';
+            document.getElementById('btn-stop').style.display = '';
+
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    syncState();
+                } else {
+                    stopTimer();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('btn-start').style.display = '';
+            document.getElementById('btn-stop').style.display = 'none';
+        }
+
+        function resetTimer() {
+            stopTimer();
+            const mins = parseInt(document.getElementById('timer-minutes').value) || 10;
+            initialTimerSeconds = mins * 60;
+            timerSeconds = initialTimerSeconds;
+            timerStartedOnce = false;
+            updateTimerDisplay();
+            syncState();
+        }
+
+        function adjustTimer(delta) {
+            timerSeconds = Math.max(0, timerSeconds + delta);
+            updateTimerDisplay();
+            syncState();
+        }
+
+        // Update timer total when minutes input changes
+        document.getElementById('timer-minutes').addEventListener('change', () => {
+            if (!timerRunning) {
+                resetTimer();
+            }
+        });
+
+        function getElapsedMinute() {
+            const elapsed = initialTimerSeconds - timerSeconds;
+            return Math.floor(elapsed / 60) + 1;
+        }
+
+        function addGoal(side) {
+            const select = document.getElementById(`scorer-select-${side}`);
+            const selectedValue = select.value;
+            let name = 'Unbekannt';
+            let number = '';
+            let photo = '';
+
+            if (selectedValue) {
+                const parts = selectedValue.split('|');
+                number = parts[0];
+                name = parts[1];
+                // Find player photo from roster
+                const players = side === 'home' ? homePlayers : awayPlayers;
+                const player = players.find(p => p.number === number && p.name === name);
+                if (player && player.photo) photo = player.photo;
+            }
+
+            const minute = getElapsedMinute();
+            const scorer = { name, number, minute };
+            const logo = side === 'home'
+                ? document.getElementById('home-logo').value
+                : document.getElementById('away-logo').value;
+
+            if (side === 'home') {
+                homeScore++;
+                homeScorers.push(scorer);
+            } else {
+                awayScore++;
+                awayScorers.push(scorer);
+            }
+
+            updateScoreDisplay();
+            renderScorerLists();
+            syncState();
+
+            // Send goal overlay
+            const duration = (parseInt(document.getElementById('goal-duration').value) || 5) * 1000;
+            channel.postMessage({
+                type: 'goal',
+                data: { name, number, logo, photo, duration }
+            });
+
+            // Reset dropdown
+            select.value = '';
+        }
+
+        function removeGoal(side) {
+            if (side === 'home' && homeScore > 0) {
+                homeScore--;
+                homeScorers.pop();
+            } else if (side === 'away' && awayScore > 0) {
+                awayScore--;
+                awayScorers.pop();
+            }
+            updateScoreDisplay();
+            renderScorerLists();
+            syncState();
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('ctrl-score-home').textContent = homeScore;
+            document.getElementById('ctrl-score-away').textContent = awayScore;
+            document.getElementById('preview-score').textContent = `${homeScore} : ${awayScore}`;
+        }
+
+        function renderScorerLists() {
+            const homeList = document.getElementById('scorers-list-home');
+            const awayList = document.getElementById('scorers-list-away');
+
+            homeList.innerHTML = homeScorers.map((s, i) =>
+                `<div class="scorer-entry"><span>${s.minute}' ${s.name} #${s.number}</span><button class="btn-dark" onclick="deleteScorer('home',${i})">x</button></div>`
+            ).join('');
+
+            awayList.innerHTML = awayScorers.map((s, i) =>
+                `<div class="scorer-entry"><span>${s.minute}' ${s.name} #${s.number}</span><button class="btn-dark" onclick="deleteScorer('away',${i})">x</button></div>`
+            ).join('');
+        }
+
+        function deleteScorer(side, index) {
+            if (side === 'home') {
+                homeScorers.splice(index, 1);
+                homeScore = homeScorers.length;
+            } else {
+                awayScorers.splice(index, 1);
+                awayScore = awayScorers.length;
+            }
+            updateScoreDisplay();
+            renderScorerLists();
+            syncState();
+        }
+
+        function syncState() {
+            const data = {
+                tournamentName: document.getElementById('tournament-name').value,
+                homeTeam: document.getElementById('home-team').value,
+                awayTeam: document.getElementById('away-team').value,
+                homeLogo: document.getElementById('home-logo').value,
+                awayLogo: document.getElementById('away-logo').value,
+                homeScore,
+                awayScore,
+                timerDisplay: formatTime(timerSeconds),
+                homeScorers,
+                awayScorers,
+                bgColor: document.getElementById('bg-color').value,
+                bgImage: document.getElementById('bg-image').value,
+                titleColor: document.getElementById('title-color').value,
+                scoreColor: document.getElementById('score-color').value,
+                timerColor: document.getElementById('timer-color').value
+            };
+            channel.postMessage({ type: 'state', data });
+        }
+
+        function swapTeams() {
+            const homeTeam = document.getElementById('home-team');
+            const awayTeam = document.getElementById('away-team');
+            const homeLogo = document.getElementById('home-logo');
+            const awayLogo = document.getElementById('away-logo');
+
+            [homeTeam.value, awayTeam.value] = [awayTeam.value, homeTeam.value];
+            [homeLogo.value, awayLogo.value] = [awayLogo.value, homeLogo.value];
+            [homeScore, awayScore] = [awayScore, homeScore];
+            [homeScorers, awayScorers] = [awayScorers, homeScorers];
+            [homePlayers, awayPlayers] = [awayPlayers, homePlayers];
+
+            updateScoreDisplay();
+            renderScorerLists();
+            renderRosters();
+            syncState();
+        }
+
+        // --- Sponsors ---
+        function addSponsor() {
+            const nameInput = document.getElementById('new-sponsor-name');
+            const urlInput = document.getElementById('new-sponsor-url');
+            const url = urlInput.value.trim();
+            if (!url) return;
+            const name = nameInput.value.trim() || `Sponsor ${sponsors.length + 1}`;
+            sponsors.push({ name, url });
+            nameInput.value = '';
+            urlInput.value = '';
+            renderSponsorList();
+        }
+
+        function handleSponsorFile(fileInput) {
+            const file = fileInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('new-sponsor-url').value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeSponsor(index) {
+            sponsors.splice(index, 1);
+            renderSponsorList();
+        }
+
+        function renderSponsorList() {
+            const container = document.getElementById('sponsor-list');
+            if (sponsors.length === 0) {
+                container.innerHTML = '<div style="color:#6b7b8d; font-size:12px; padding:8px 0;">Keine Sponsoren eingetragen</div>';
+                return;
+            }
+            container.innerHTML = sponsors.map((s, i) => {
+                const isVid = isVideoUrl(s.url);
+                const typeTag = isVid ? '<span style="color:#3498db">[Video]</span>' : '<span style="color:#27ae60">[Bild]</span>';
+                return `<div class="roster-row">
+                    <span class="roster-name">${typeTag} ${s.name}</span>
+                    <button class="btn-dark" onclick="removeSponsor(${i})">x</button>
+                </div>`;
+            }).join('');
+        }
+
+        function isVideoUrl(url) {
+            if (!url) return false;
+            const ext = url.split('.').pop().split('?')[0].toLowerCase();
+            return ['mp4', 'webm', 'ogg', 'mov'].includes(ext)
+                || url.startsWith('data:video/');
+        }
+
+        function startSponsors() {
+            if (sponsors.length === 0) { alert('Keine Sponsoren eingetragen.'); return; }
+            const interval = parseInt(document.getElementById('sponsor-interval').value) || 5;
+            const size = document.getElementById('sponsor-size').value;
+            channel.postMessage({ type: 'sponsorStart', data: { sponsors, interval, size } });
+        }
+
+        function stopSponsors() {
+            channel.postMessage({ type: 'sponsorStop' });
+        }
+
+        function showHalftime(show) {
+            channel.postMessage({ type: 'halftime', data: { show } });
+        }
+
+        function newMatch() {
+            if (!confirm('Neues Spiel starten? Score und Torschützen werden zurückgesetzt.')) return;
+            homeScore = 0;
+            awayScore = 0;
+            homeScorers = [];
+            awayScorers = [];
+            resetTimer();
+            updateScoreDisplay();
+            renderScorerLists();
+            syncState();
+            showHalftime(false);
+            hideSponsor();
+        }
+
+        function openDisplay() {
+            window.open('display.html', '_blank');
+        }
+
+        // Listen for state requests from display
+        channel.onmessage = (e) => {
+            if (e.data.type === 'requestState') {
+                syncState();
+            }
+        };
+
+        function exportConfig() {
+            const config = {
+                tournament: {
+                    name: document.getElementById('tournament-name').value
+                },
+                teams: {
+                    home: {
+                        name: document.getElementById('home-team').value,
+                        logo: document.getElementById('home-logo').value,
+                        players: homePlayers
+                    },
+                    away: {
+                        name: document.getElementById('away-team').value,
+                        logo: document.getElementById('away-logo').value,
+                        players: awayPlayers
+                    }
+                },
+                design: {
+                    bgColor: document.getElementById('bg-color').value,
+                    bgImage: document.getElementById('bg-image').value,
+                    titleColor: document.getElementById('title-color').value,
+                    scoreColor: document.getElementById('score-color').value,
+                    timerColor: document.getElementById('timer-color').value
+                },
+                timer: {
+                    minutes: parseInt(document.getElementById('timer-minutes').value) || 10
+                },
+                sponsors: {
+                    list: sponsors,
+                    interval: parseInt(document.getElementById('sponsor-interval').value) || 5
+                },
+                goalOverlay: {
+                    duration: parseInt(document.getElementById('goal-duration').value) || 5
+                },
+                match: {
+                    homeScore,
+                    awayScore,
+                    homeScorers,
+                    awayScorers
+                }
+            };
+
+            const filename = (document.getElementById('export-filename').value.trim() || 'scoreboard-config') + '.json';
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importConfig(fileInput) {
+            const file = fileInput.files[0];
+            if (!file) return;
+            document.getElementById('config-file-name').value = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    applyConfig(config);
+                } catch (err) {
+                    alert('Fehler beim Laden der JSON-Datei: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function applyConfig(config) {
+            if (config.tournament) {
+                if (config.tournament.name) document.getElementById('tournament-name').value = config.tournament.name;
+            }
+
+            if (config.teams) {
+                if (config.teams.home) {
+                    if (config.teams.home.name) document.getElementById('home-team').value = config.teams.home.name;
+                    if (config.teams.home.logo != null) {
+                        document.getElementById('home-logo').value = config.teams.home.logo;
+                        updateLogoPreview('home-logo');
+                    }
+                    if (Array.isArray(config.teams.home.players)) {
+                        homePlayers = config.teams.home.players;
+                    }
+                }
+                if (config.teams.away) {
+                    if (config.teams.away.name) document.getElementById('away-team').value = config.teams.away.name;
+                    if (config.teams.away.logo != null) {
+                        document.getElementById('away-logo').value = config.teams.away.logo;
+                        updateLogoPreview('away-logo');
+                    }
+                    if (Array.isArray(config.teams.away.players)) {
+                        awayPlayers = config.teams.away.players;
+                    }
+                }
+            }
+
+            if (config.design) {
+                if (config.design.bgColor) document.getElementById('bg-color').value = config.design.bgColor;
+                if (config.design.bgImage != null) document.getElementById('bg-image').value = config.design.bgImage;
+                if (config.design.titleColor) document.getElementById('title-color').value = config.design.titleColor;
+                if (config.design.scoreColor) document.getElementById('score-color').value = config.design.scoreColor;
+                if (config.design.timerColor) document.getElementById('timer-color').value = config.design.timerColor;
+            }
+
+            if (config.timer) {
+                if (config.timer.minutes) {
+                    document.getElementById('timer-minutes').value = config.timer.minutes;
+                    resetTimer();
+                }
+            }
+
+            if (config.sponsors) {
+                if (Array.isArray(config.sponsors.list)) sponsors = config.sponsors.list;
+                if (config.sponsors.interval) document.getElementById('sponsor-interval').value = config.sponsors.interval;
+                renderSponsorList();
+            }
+
+            if (config.goalOverlay) {
+                if (config.goalOverlay.duration) document.getElementById('goal-duration').value = config.goalOverlay.duration;
+            }
+
+            if (config.match) {
+                homeScore = config.match.homeScore || 0;
+                awayScore = config.match.awayScore || 0;
+                homeScorers = config.match.homeScorers || [];
+                awayScorers = config.match.awayScorers || [];
+                updateScoreDisplay();
+                renderScorerLists();
+            }
+
+            renderRosters();
+            syncState();
+        }
+
+        function updateLogoPreview(inputId) {
+            const preview = document.getElementById(inputId + '-preview');
+            const value = document.getElementById(inputId).value;
+            if (preview && value) {
+                preview.src = value;
+                preview.classList.add('visible');
+            } else if (preview) {
+                preview.classList.remove('visible');
+            }
+        }
+
+        // --- Roster / Kader ---
+        function addPlayer(side) {
+            const numInput = document.getElementById(`new-player-num-${side}`);
+            const nameInput = document.getElementById(`new-player-name-${side}`);
+            const photoInput = document.getElementById(`new-player-photo-${side}`);
+            const number = numInput.value.trim();
+            const name = nameInput.value.trim();
+            const photo = photoInput.value || '';
+            if (!name) return;
+
+            const players = side === 'home' ? homePlayers : awayPlayers;
+            players.push({ number, name, photo });
+            players.sort((a, b) => (parseInt(a.number) || 999) - (parseInt(b.number) || 999));
+
+            numInput.value = '';
+            nameInput.value = '';
+            photoInput.value = '';
+
+            renderRosters();
+        }
+
+        function handlePlayerPhoto(fileInput, side) {
+            const file = fileInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById(`new-player-photo-${side}`).value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function editPlayerPhoto(fileInput, side, index) {
+            const file = fileInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const players = side === 'home' ? homePlayers : awayPlayers;
+                players[index].photo = e.target.result;
+                renderRosters();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePlayer(side, index) {
+            const players = side === 'home' ? homePlayers : awayPlayers;
+            players.splice(index, 1);
+            renderRosters();
+        }
+
+        function renderRosters() {
+            renderRosterSide('home', homePlayers);
+            renderRosterSide('away', awayPlayers);
+            updatePlayerSelects();
+
+            // Update roster labels with team names
+            document.getElementById('roster-label-home').textContent =
+                document.getElementById('home-team').value || 'Heim';
+            document.getElementById('roster-label-away').textContent =
+                document.getElementById('away-team').value || 'Gast';
+        }
+
+        function renderRosterSide(side, players) {
+            const container = document.getElementById(`roster-${side}`);
+            if (players.length === 0) {
+                container.innerHTML = '<div style="color:#6b7b8d; font-size:12px; padding:8px 0;">Keine Spieler eingetragen</div>';
+                return;
+            }
+            container.innerHTML = players.map((p, i) => {
+                const photoEl = p.photo
+                    ? `<img class="roster-photo" src="${p.photo}" alt="">`
+                    : `<div class="no-photo">?</div>`;
+                return `<div class="roster-row">
+                    ${photoEl}
+                    <span class="roster-num">#${p.number}</span>
+                    <span class="roster-name">${p.name}</span>
+                    <button class="btn-dark file-btn" style="padding:2px 6px;font-size:11px" title="Foto ändern">&#128247;<input type="file" accept="image/*" onchange="editPlayerPhoto(this,'${side}',${i})"></button>
+                    <button class="btn-dark" onclick="removePlayer('${side}',${i})">x</button>
+                </div>`;
+            }).join('');
+        }
+
+        function updatePlayerSelects() {
+            updateSelectForSide('home', homePlayers);
+            updateSelectForSide('away', awayPlayers);
+        }
+
+        function updateSelectForSide(side, players) {
+            const select = document.getElementById(`scorer-select-${side}`);
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">-- Spieler wählen --</option>';
+
+            if (players.length === 0) {
+                select.innerHTML += '<option value="" disabled>Kader leer — Spieler im Kader hinzufügen</option>';
+                return;
+            }
+
+            players.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = `${p.number}|${p.name}`;
+                opt.textContent = `#${p.number} ${p.name}`;
+                select.appendChild(opt);
+            });
+
+            // Restore selection if still valid
+            if (currentValue) select.value = currentValue;
+        }
+
+        // Allow Enter key in roster inputs to add player
+        ['home', 'away'].forEach(side => {
+            const nameInput = document.getElementById(`new-player-name-${side}`);
+            const numInput = document.getElementById(`new-player-num-${side}`);
+            nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addPlayer(side); });
+            numInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { nameInput.focus(); }
+            });
+        });
+
+        function resetBgImage() {
+            document.getElementById('bg-image').value = '';
+            syncState();
+        }
+
+        function handleFileSelect(fileInput, targetId) {
+            const file = fileInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                document.getElementById(targetId).value = dataUrl;
+
+                // Update preview if exists
+                const preview = document.getElementById(targetId + '-preview');
+                if (preview) {
+                    preview.src = dataUrl;
+                    preview.classList.add('visible');
+                }
+
+                syncState();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Init
+        updateTimerDisplay();
+        updateScoreDisplay();
+        renderRosters();
+        renderSponsorList();
+    </script>
+</body>
+</html>

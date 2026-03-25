@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard Anzeige</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@700;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            position: relative;
+        }
+
+        #background {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+        }
+
+        #scoreboard {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Tournament Title */
+        #tournament-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 5vw;
+            text-align: center;
+            padding-top: 1vh;
+            color: #e74c3c;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+            letter-spacing: 4px;
+        }
+
+        /* Main scoreboard area */
+        #score-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3vw;
+            flex: 1;
+            width: 100%;
+            padding: 0 5vw;
+        }
+
+        .team-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2vh;
+            flex: 1;
+        }
+
+        .team-logo {
+            width: 12vw;
+            height: 12vw;
+            border-radius: 50%;
+            object-fit: contain;
+            background: rgba(255,255,255,0.1);
+            padding: 0.5vw;
+        }
+
+        .team-logo[src=""] {
+            display: none;
+        }
+
+        .team-name {
+            font-size: 2.5vw;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+
+        .team-score {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 16vw;
+            line-height: 1;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.9);
+        }
+
+        /* Center section: timer */
+        #center-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2vh;
+        }
+
+        #timer {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 8vw;
+            color: #e74c3c;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+        }
+
+        #colon {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 12vw;
+            line-height: 1;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.9);
+            opacity: 0.6;
+        }
+
+        /* Goal scorers list */
+        #scorers-home, #scorers-away {
+            font-size: 1.4vw;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            line-height: 1.6;
+            min-height: 2vh;
+            color: #ccc;
+        }
+
+        /* Goal celebration overlay */
+        #goal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.85);
+            animation: fadeIn 0.3s ease;
+        }
+
+        #goal-overlay.visible {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #goal-content {
+            text-align: center;
+            animation: bounceIn 0.6s ease;
+        }
+
+        #goal-content .goal-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 12vw;
+            color: #e74c3c;
+            text-shadow: 3px 3px 10px rgba(231,76,60,0.5);
+            letter-spacing: 8px;
+        }
+
+        #goal-content .goal-scorer-name {
+            font-size: 5vw;
+            font-weight: 900;
+            margin-top: 2vh;
+            animation: slideUp 0.5s ease 0.3s both;
+        }
+
+        #goal-content .goal-scorer-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 8vw;
+            color: #e74c3c;
+            margin-top: 1vh;
+            animation: slideUp 0.5s ease 0.5s both;
+        }
+
+        #goal-content .goal-player-photo {
+            width: 18vw;
+            height: 18vw;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-top: 2vh;
+            border: 4px solid #e74c3c;
+            box-shadow: 0 0 30px rgba(231,76,60,0.4);
+            animation: bounceIn 0.6s ease 0.3s both;
+        }
+
+        #goal-content .goal-bottom-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3vw;
+            margin-top: 2vh;
+        }
+
+        #goal-content .goal-team-logo {
+            width: 8vw;
+            height: 8vw;
+            border-radius: 50%;
+            object-fit: contain;
+            animation: slideUp 0.5s ease 0.7s both;
+        }
+
+        #goal-content .goal-info {
+            text-align: left;
+            animation: slideUp 0.5s ease 0.5s both;
+        }
+
+        #goal-content .goal-info .goal-scorer-name {
+            margin-top: 0;
+            animation: none;
+        }
+
+        #goal-content .goal-info .goal-scorer-number {
+            margin-top: 0;
+            animation: none;
+        }
+
+        /* Sponsor overlay - base */
+        #sponsor-overlay {
+            position: fixed;
+            z-index: 50;
+            background: rgba(255,255,255,0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #sponsor-overlay.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #sponsor-overlay .sponsor-item {
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #sponsor-overlay .sponsor-item.active {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Size: small */
+        #sponsor-overlay.size-small {
+            bottom: 3vh; left: 50%; transform: translateX(-50%);
+            padding: 0.5vw 1vw;
+        }
+        #sponsor-overlay.size-small img { max-height: 6vh; max-width: 15vw; }
+        #sponsor-overlay.size-small video { max-height: 8vh; max-width: 18vw; }
+
+        /* Size: medium */
+        #sponsor-overlay.size-medium {
+            bottom: 3vh; left: 50%; transform: translateX(-50%);
+            padding: 1vw 2vw;
+        }
+        #sponsor-overlay.size-medium img { max-height: 12vh; max-width: 25vw; }
+        #sponsor-overlay.size-medium video { max-height: 14vh; max-width: 30vw; }
+
+        /* Size: large */
+        #sponsor-overlay.size-large {
+            bottom: 3vh; left: 50%; transform: translateX(-50%);
+            padding: 1.5vw 3vw;
+        }
+        #sponsor-overlay.size-large img { max-height: 22vh; max-width: 40vw; }
+        #sponsor-overlay.size-large video { max-height: 25vh; max-width: 45vw; }
+
+        /* Size: fullscreen */
+        #sponsor-overlay.size-fullscreen {
+            top: 0; left: 0; right: 0; bottom: 0;
+            transform: none;
+            border-radius: 0;
+            width: 100vw;
+            height: 100vh;
+            padding: 3vw;
+        }
+        #sponsor-overlay.size-fullscreen img { max-height: 80vh; max-width: 80vw; }
+        #sponsor-overlay.size-fullscreen video { max-height: 80vh; max-width: 80vw; }
+
+        /* Halftime overlay */
+        #halftime-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.8);
+        }
+
+        #halftime-overlay.visible {
+            display: flex;
+        }
+
+        #halftime-overlay .halftime-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 8vw;
+            color: #f39c12;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+        }
+    </style>
+</head>
+<body>
+    <div id="background"></div>
+
+    <div id="scoreboard">
+        <div id="tournament-title">Turnier 2026</div>
+        <div id="score-area">
+            <div class="team-side">
+                <img class="team-logo" id="logo-home" src="" alt="">
+                <div class="team-name" id="name-home">Heim</div>
+                <div class="team-score" id="score-home">0</div>
+                <div id="scorers-home"></div>
+            </div>
+            <div id="center-section">
+                <div id="timer">10:00</div>
+                <div id="colon">:</div>
+            </div>
+            <div class="team-side">
+                <img class="team-logo" id="logo-away" src="" alt="">
+                <div class="team-name" id="name-away">Gast</div>
+                <div class="team-score" id="score-away">0</div>
+                <div id="scorers-away"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="goal-overlay">
+        <div id="goal-content">
+            <div class="goal-text">TOOOR!</div>
+            <img class="goal-player-photo" id="goal-player-photo" src="" alt="">
+            <div class="goal-bottom-row">
+                <img class="goal-team-logo" id="goal-team-logo" src="" alt="">
+                <div class="goal-info">
+                    <div class="goal-scorer-name" id="goal-player-name"></div>
+                    <div class="goal-scorer-number" id="goal-player-number"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sponsor-overlay"></div>
+
+    <div id="halftime-overlay">
+        <div class="halftime-text">HALBZEIT</div>
+    </div>
+
+    <script>
+        const channel = new BroadcastChannel('scoreboard');
+
+        const state = {
+            tournamentName: 'Turnier 2026',
+            homeTeam: 'Heim',
+            awayTeam: 'Gast',
+            homeLogo: '',
+            awayLogo: '',
+            homeScore: 0,
+            awayScore: 0,
+            timerDisplay: '10:00',
+            homeScorers: [],
+            awayScorers: [],
+            bgColor: '#000000',
+            bgImage: '',
+            titleColor: '#e74c3c',
+            scoreColor: '#ffffff',
+            timerColor: '#e74c3c'
+        };
+
+        function render() {
+            document.getElementById('tournament-title').textContent = state.tournamentName;
+            document.getElementById('tournament-title').style.color = state.titleColor;
+            document.getElementById('name-home').textContent = state.homeTeam;
+            document.getElementById('name-away').textContent = state.awayTeam;
+            document.getElementById('score-home').textContent = state.homeScore;
+            document.getElementById('score-away').textContent = state.awayScore;
+            document.getElementById('score-home').style.color = state.scoreColor;
+            document.getElementById('score-away').style.color = state.scoreColor;
+            document.getElementById('timer').textContent = state.timerDisplay;
+            document.getElementById('timer').style.color = state.timerColor;
+
+            const homeLogo = document.getElementById('logo-home');
+            const awayLogo = document.getElementById('logo-away');
+            homeLogo.src = state.homeLogo;
+            homeLogo.style.display = state.homeLogo ? 'block' : 'none';
+            awayLogo.src = state.awayLogo;
+            awayLogo.style.display = state.awayLogo ? 'block' : 'none';
+
+            const bg = document.getElementById('background');
+            bg.style.backgroundColor = state.bgColor;
+            if (state.bgImage) {
+                bg.style.backgroundImage = `url(${state.bgImage})`;
+            } else {
+                bg.style.backgroundImage = 'none';
+            }
+
+            document.getElementById('scorers-home').innerHTML =
+                state.homeScorers.map(s => `${s.minute}' ${s.name} #${s.number}`).join('<br>');
+            document.getElementById('scorers-away').innerHTML =
+                state.awayScorers.map(s => `${s.minute}' ${s.name} #${s.number}`).join('<br>');
+        }
+
+        function showGoal(data) {
+            document.getElementById('goal-player-name').textContent = data.name;
+            document.getElementById('goal-player-number').textContent = data.number ? `#${data.number}` : '';
+
+            const goalPhoto = document.getElementById('goal-player-photo');
+            goalPhoto.src = data.photo || '';
+            goalPhoto.style.display = data.photo ? 'block' : 'none';
+
+            const goalLogo = document.getElementById('goal-team-logo');
+            goalLogo.src = data.logo || '';
+            goalLogo.style.display = data.logo ? 'block' : 'none';
+
+            const overlay = document.getElementById('goal-overlay');
+            overlay.classList.add('visible');
+
+            // Reset animation
+            const content = document.getElementById('goal-content');
+            content.style.animation = 'none';
+            content.offsetHeight; // trigger reflow
+            content.style.animation = '';
+
+            setTimeout(() => {
+                overlay.classList.remove('visible');
+            }, data.duration || 5000);
+        }
+
+        function showHalftime(show) {
+            document.getElementById('halftime-overlay').classList.toggle('visible', show);
+        }
+
+        let sponsorInterval = null;
+        let sponsorIndex = 0;
+        let sponsorList = [];
+
+        function startSponsorSlideshow(data) {
+            // Clean up previous slideshow immediately
+            if (sponsorInterval) { clearInterval(sponsorInterval); sponsorInterval = null; }
+            if (stopCleanupTimer) { clearTimeout(stopCleanupTimer); stopCleanupTimer = null; }
+
+            sponsorList = data.sponsors || [];
+            if (sponsorList.length === 0) return;
+
+            const overlay = document.getElementById('sponsor-overlay');
+            // Stop any playing videos before clearing
+            overlay.querySelectorAll('video').forEach(v => { v.pause(); v.src = ''; });
+            overlay.innerHTML = '';
+
+            sponsorList.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = 'sponsor-item' + (i === 0 ? ' active' : '');
+
+                if (isVideo(s.url)) {
+                    const video = document.createElement('video');
+                    video.src = s.url;
+                    video.muted = true;
+                    video.loop = true;
+                    video.autoplay = false;
+                    video.playsInline = true;
+                    div.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = s.url;
+                    img.alt = s.name || 'Sponsor';
+                    div.appendChild(img);
+                }
+                overlay.appendChild(div);
+            });
+
+            // Apply size class
+            overlay.className = '';
+            const size = data.size || 'medium';
+            overlay.classList.add('size-' + size, 'visible');
+            sponsorIndex = 0;
+            playCurrentSponsor();
+
+            const interval = (data.interval || 5) * 1000;
+            if (sponsorList.length > 1) {
+                sponsorInterval = setInterval(() => {
+                    const items = overlay.querySelectorAll('.sponsor-item');
+                    if (items.length === 0) return;
+                    items[sponsorIndex].classList.remove('active');
+                    pauseSponsorMedia(items[sponsorIndex]);
+                    sponsorIndex = (sponsorIndex + 1) % items.length;
+                    items[sponsorIndex].classList.add('active');
+                    playCurrentSponsor();
+                }, interval);
+            }
+        }
+
+        function playCurrentSponsor() {
+            const overlay = document.getElementById('sponsor-overlay');
+            const active = overlay.querySelector('.sponsor-item.active');
+            if (!active) return;
+            const video = active.querySelector('video');
+            if (video) video.play().catch(() => {});
+        }
+
+        function pauseSponsorMedia(item) {
+            const video = item.querySelector('video');
+            if (video) { video.pause(); video.currentTime = 0; }
+        }
+
+        let stopCleanupTimer = null;
+
+        function stopSponsorSlideshow() {
+            if (sponsorInterval) { clearInterval(sponsorInterval); sponsorInterval = null; }
+            if (stopCleanupTimer) { clearTimeout(stopCleanupTimer); stopCleanupTimer = null; }
+            const overlay = document.getElementById('sponsor-overlay');
+            overlay.classList.remove('visible');
+            stopCleanupTimer = setTimeout(() => {
+                overlay.querySelectorAll('video').forEach(v => { v.pause(); v.src = ''; });
+                overlay.innerHTML = '';
+                overlay.className = '';
+                stopCleanupTimer = null;
+            }, 500);
+            sponsorList = [];
+        }
+
+        function isVideo(url) {
+            if (!url) return false;
+            const ext = url.split('.').pop().split('?')[0].toLowerCase();
+            return ['mp4', 'webm', 'ogg', 'mov'].includes(ext)
+                || url.startsWith('data:video/');
+        }
+
+        channel.onmessage = (e) => {
+            const msg = e.data;
+            switch (msg.type) {
+                case 'state':
+                    Object.assign(state, msg.data);
+                    render();
+                    break;
+                case 'goal':
+                    showGoal(msg.data);
+                    break;
+                case 'halftime':
+                    showHalftime(msg.data.show);
+                    break;
+                case 'sponsorStart':
+                    startSponsorSlideshow(msg.data);
+                    break;
+                case 'sponsorStop':
+                    stopSponsorSlideshow();
+                    break;
+            }
+        };
+
+        // Request current state on load
+        channel.postMessage({ type: 'requestState' });
+        render();
+    </script>
+</body>
+</html>

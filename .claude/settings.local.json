@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(apt list:*)",
+      "Read(//usr/bin/**)",
+      "Read(//snap/**)"
+    ]
+  }
+}
