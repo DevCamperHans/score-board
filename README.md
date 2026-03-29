@@ -25,11 +25,11 @@ Web-based scoreboard system for live display of match scores at tournaments. Con
 
 #### Control Panel (`control.html`)
 
-![Control Panel](docs/screenshots/control.png)
+![Control Panel](docs/screenshots/control-en.png)
 
 #### Display (`display.html`)
 
-![Display](docs/screenshots/display.png)
+![Display](docs/screenshots/display-en.png)
 
 > **Tip:** Run `npm install && node take-screenshots.mjs` to regenerate the screenshots automatically.
 
@@ -61,6 +61,7 @@ python3 -m http.server 8080
 scoreboard/
 ├── control.html          # Control panel
 ├── display.html          # Display for monitor/projector
+├── translations.js       # i18n strings (DE/EN)
 ├── take-screenshots.mjs  # Puppeteer screenshot generator
 ├── package.json          # Node dependencies (Puppeteer)
 ├── assets/               # Logos, player photos, sponsor media
@@ -108,11 +109,11 @@ Webbasiertes Scoreboard-System zur Live-Anzeige von Spielständen bei Turnieren.
 
 #### Steuerung (`control.html`)
 
-![Steuerung](docs/screenshots/control.png)
+![Steuerung](docs/screenshots/control-de.png)
 
 #### Anzeige (`display.html`)
 
-![Anzeige](docs/screenshots/display.png)
+![Anzeige](docs/screenshots/display-de.png)
 
 > **Tipp:** Mit `npm install && node take-screenshots.mjs` können die Screenshots automatisch neu generiert werden.
 
@@ -144,6 +145,7 @@ python3 -m http.server 8080
 scoreboard/
 ├── control.html          # Steuerungsoberfläche
 ├── display.html          # Anzeige für Monitor/Beamer
+├── translations.js       # i18n-Strings (DE/EN)
 ├── take-screenshots.mjs  # Puppeteer Screenshot-Generator
 ├── package.json          # Node-Abhängigkeiten (Puppeteer)
 ├── assets/               # Logos, Spielerfotos, Sponsoren-Medien

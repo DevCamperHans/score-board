@@ -359,7 +359,7 @@
 
     <div id="goal-overlay">
         <div id="goal-content">
-            <div class="goal-text">TOOOR!</div>
+            <div class="goal-text" id="goal-text">TOOOR!</div>
             <img class="goal-player-photo" id="goal-player-photo" src="" alt="">
             <div class="goal-bottom-row">
                 <img class="goal-team-logo" id="goal-team-logo" src="" alt="">
@@ -374,11 +374,23 @@
     <div id="sponsor-overlay"></div>
 
     <div id="halftime-overlay">
-        <div class="halftime-text">HALBZEIT</div>
+        <div class="halftime-text" id="halftime-text">HALBZEIT</div>
     </div>
 
+    <script src="translations.js"></script>
     <script>
         const channel = new BroadcastChannel('scoreboard');
+
+        let currentLang = localStorage.getItem('scoreboard-lang') || 'de';
+
+        function t(key) {
+            return (translations[currentLang] && translations[currentLang][key]) || translations.de[key] || key;
+        }
+
+        function applyDisplayLang() {
+            document.getElementById('goal-text').textContent = t('goalText');
+            document.getElementById('halftime-text').textContent = t('halftimeText');
+        }
 
         const state = {
             tournamentName: 'Turnier 2026',
@@ -575,11 +587,17 @@
                 case 'sponsorStop':
                     stopSponsorSlideshow();
                     break;
+                case 'language':
+                    currentLang = msg.data.lang;
+                    localStorage.setItem('scoreboard-lang', currentLang);
+                    applyDisplayLang();
+                    break;
             }
         };
 
         // Request current state on load
         channel.postMessage({ type: 'requestState' });
+        applyDisplayLang();
         render();
     </script>
 </body>
