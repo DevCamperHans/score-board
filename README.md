@@ -31,7 +31,7 @@ Web-based scoreboard system for live display of match scores at tournaments. Con
 
 ![Display](docs/screenshots/display.png)
 
-> **Note:** Screenshots must be created manually and placed in `docs/screenshots/`.
+> **Tip:** Run `npm install && node take-screenshots.mjs` to regenerate the screenshots automatically.
 
 ### Usage
 
@@ -61,6 +61,8 @@ python3 -m http.server 8080
 scoreboard/
 ├── control.html          # Control panel
 ├── display.html          # Display for monitor/projector
+├── take-screenshots.mjs  # Puppeteer screenshot generator
+├── package.json          # Node dependencies (Puppeteer)
 ├── assets/               # Logos, player photos, sponsor media
 └── docs/
     └── screenshots/      # Screenshots for documentation
@@ -112,7 +114,7 @@ Webbasiertes Scoreboard-System zur Live-Anzeige von Spielständen bei Turnieren.
 
 ![Anzeige](docs/screenshots/display.png)
 
-> **Hinweis:** Screenshots müssen manuell erstellt und unter `docs/screenshots/` abgelegt werden.
+> **Tipp:** Mit `npm install && node take-screenshots.mjs` können die Screenshots automatisch neu generiert werden.
 
 ### Verwendung
 
@@ -142,6 +144,8 @@ python3 -m http.server 8080
 scoreboard/
 ├── control.html          # Steuerungsoberfläche
 ├── display.html          # Anzeige für Monitor/Beamer
+├── take-screenshots.mjs  # Puppeteer Screenshot-Generator
+├── package.json          # Node-Abhängigkeiten (Puppeteer)
 ├── assets/               # Logos, Spielerfotos, Sponsoren-Medien
 └── docs/
     └── screenshots/      # Screenshots für die Dokumentation
