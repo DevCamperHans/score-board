@@ -82,7 +82,7 @@ In the **Configuration** section of the control panel, the current state can be 
 ### Technology
 
 - Vanilla HTML, CSS, JavaScript
-- No external dependencies (except Google Fonts)
+- No external dependencies
 - Communication between control panel and display via the [BroadcastChannel API](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel)
 
 ---
@@ -165,5 +165,5 @@ scoreboard/
 ### Technologie
 
 - Vanilla HTML, CSS, JavaScript
-- Keine externen Abhängigkeiten (außer Google Fonts)
+- Keine externen Abhängigkeiten
 - Kommunikation zwischen Steuerung und Anzeige über die [BroadcastChannel API](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel)
